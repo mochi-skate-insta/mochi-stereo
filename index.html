@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>mochi stereo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Handwritten/script font -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: linear-gradient(to bottom, #ffe4f2, #ffffff);
+      text-align: center;
+    }
+
+    .hero {
+      width: 280px;
+      margin-top: 60px;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 48px;
+      margin: 20px 0;
+    }
+
+    button {
+      background: #ff4fa3;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .player {
+      margin-top: 40px;
+    }
+
+    audio {
+      margin-top: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .back-btn {
+      background: none;
+      color: #ff4fa3;
+      font-size: 18px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+  // REPLACE THESE LINKS with your actual MP3 URLs
+  const songs = [
+    "https://dl.dropboxusercontent.com/s/your-song1.mp3",
+    "https://dl.dropboxusercontent.com/s/your-song2.mp3"
+    // Add all 212 links here
+  ];
+
+  let audio = new Audio();
+
+  function renderHome() {
+    document.getElementById("app").innerHTML = `
+      <img class="hero" src="https://images.unsplash.com/photo-1518441902117-f1a9c0e2f5e6" alt="Pink Headphones"/>
+      <h1>mochi stereo</h1>
+      <button onclick="playRandom()">Play Random Song</button>
+    `;
+  }
+
+  function playRandom() {
+    const randomSong = songs[Math.floor(Math.random() * songs.length)];
+    audio.src = randomSong;
+    audio.play();
+
+    document.getElementById("app").innerHTML = `
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <div class="player">
+        <p>Now Playing</p>
+        <audio controls autoplay src="${randomSong}"></audio>
+        <br/>
+        <button onclick="playRandom()">Next Random Song</button>
+      </div>
+    `;
+  }
+
+  function goBack() {
+    audio.pause();
+    renderHome();
+  }
+
+  // Initial render
+  renderHome();
+</script>
+
+</body>
+</html>
