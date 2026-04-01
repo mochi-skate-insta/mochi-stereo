@@ -82,6 +82,170 @@ audio {
 .equalizer-bar {
   width: 5px;
   background: #ff4fa3;
+  height: 10px;
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+const songs = [
+  "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/(mmm).mp3",
+  "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/Ape%20tsukareru.mp3",
+  "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/Spoon%20Drill%20(1).mp3"
+  // Add all 212 links here
+];
+
+let currentSong = null;
+let audio = null;
+let audioContext = null;
+let analyser = null;
+let dataArray = null;
+let bars = [];
+
+function renderHome() {
+  if(audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  document.getElementById("app").innerHTML = `
+    <img class="hero" src="https://mochi-stereo-sound.lovable.app/assets/hero-headphones-C_7uh22w.png" alt="Pink Headphones"/>
+    <h1>mochi stereo</h1>
+    <button onclick="playRandom()">Play Random Song</button>
+  `;
+}
+
+function playRandom() {
+  currentSong = songs[Math.floor(Math.random() * songs.length)];
+
+  document.getElementById("app").innerHTML = `
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div class="player">
+      <p id="songTitle">Now Playing: ${decodeURIComponent(currentSong.split('/').pop())}</p>
+      <audio id="audioPlayer" src="${currentSong}" controls></audio>
+      <div class="control-btns">
+        <button onclick="playAudio()">Play</button>
+        <button onclick="pauseAudio()">Pause</button>
+        <button onclick="stopAudio()">Stop</button>
+        <button onclick="playRandom()">Next Random Song</button>
+      </div>
+      <div id="equalizer"></div>
+    </div>
+  `;
+
+  audio = document.getElementById("audioPlayer");
+
+  // Setup equalizer on first user play
+  audio.addEventListener('play', () => {
+    if(!audioContext || audioContext.state === 'closed') {
+      setupEqualizer(audio);
+    } else if(audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+  }, { once: true });
+}
+
+function playAudio() { if(audio) audio.play(); }
+function pauseAudio() { if(audio) audio.pause(); }
+function stopAudio() { if(audio) { audio.pause(); audio.currentTime = 0; } }
+
+function goBack() {
+  stopAudio();
+  if(audioContext) audioContext.close();
+  renderHome();
+}
+
+function setupEqualizer(audio) {
+  const eqContainer = document.getElementById("equalizer");
+  eqContainer.innerHTML = '';
+  bars = [];
+
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioContext.createMediaElementSource(audio);
+  analyser = audioContext.createAnalyser();
+  source.connect(analyser);
+  analyser.connect(audioContext.destination);
+  analyser.fftSize = 64;
+
+  const bufferLength = analyser.frequencyBinCount;
+  dataArray = new Uint8Array(bufferLength);
+
+  for(let i=0;i<bufferLength;i++){
+    const bar = document.createElement('div');
+    bar.className = 'equalizer-bar';
+    eqContainer.appendChild(bar);
+    bars.push(bar);
+  }
+
+  requestAnimationFrame(drawEqualizer);
+}
+
+function drawEqualizer() {
+  if(!analyser) return;
+  analyser.getByteFrequencyData(dataArray);
+  for(let i=0;i<bars.length;i++){
+    const scale = dataArray[i]/256;
+    bars[i].style.height = `${10 + scale*50}px`;
+  }
+  requestAnimationFrame(drawEqualizer);
+}
+
+// Initial render
+renderHome();
+</script>
+
+</body>
+</html>  cursor: pointer;
+  margin: 10px;
+}
+
+.player {
+  margin-top: 40px;
+}
+
+audio {
+  margin-top: 10px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.control-btns button {
+  background: #ff4fa3;
+  margin: 5px;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.back-btn {
+  background: none;
+  color: #ff4fa3;
+  font-size: 18px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  border: none;
+}
+
+#songTitle {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#equalizer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  height: 50px;
+  gap: 5px;
+}
+
+.equalizer-bar {
+  width: 5px;
+  background: #ff4fa3;
   animation: bounce 0.5s infinite alternate;
 }
 
