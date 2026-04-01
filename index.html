@@ -71,9 +71,14 @@
     // Add all 212 links here
   ];
 
+  // Use a single audio instance
   let audio = new Audio();
 
   function renderHome() {
+    // Stop any currently playing audio
+    audio.pause();
+    audio.currentTime = 0;
+
     document.getElementById("app").innerHTML = `
       <img class="hero" src="https://images.unsplash.com/photo-1518441902117-f1a9c0e2f5e6" alt="Pink Headphones"/>
       <h1>mochi stereo</h1>
@@ -82,6 +87,10 @@
   }
 
   function playRandom() {
+    // Stop previous audio
+    audio.pause();
+    audio.currentTime = 0;
+
     const randomSong = songs[Math.floor(Math.random() * songs.length)];
     audio.src = randomSong;
     audio.play();
@@ -90,15 +99,20 @@
       <button class="back-btn" onclick="goBack()">← Back</button>
       <div class="player">
         <p>Now Playing</p>
-        <audio controls autoplay src="${randomSong}"></audio>
+        <audio controls autoplay src="${randomSong}" id="player"></audio>
         <br/>
         <button onclick="playRandom()">Next Random Song</button>
       </div>
     `;
+
+    // Sync the visible player with the single audio instance
+    const player = document.getElementById('player');
+    player.onplay = () => { if(audio.src !== player.src) audio.src = player.src; audio.play(); };
   }
 
   function goBack() {
     audio.pause();
+    audio.currentTime = 0;
     renderHome();
   }
 
