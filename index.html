@@ -48,6 +48,14 @@
       max-width: 400px;
     }
 
+    .control-btns button {
+      background: #ff4fa3;
+      margin: 5px;
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+
     .back-btn {
       background: none;
       color: #ff4fa3;
@@ -63,56 +71,62 @@
 <div id="app"></div>
 
 <script>
-  // REPLACE THESE LINKS with your actual MP3 URLs
+  // Your MP3 links (replace with all 212)
   const songs = [
     "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/(mmm).mp3",
     "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/Ape%20tsukareru.mp3",
     "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/Spoon%20Drill%20(1).mp3"
-    // Add all 212 links here
   ];
 
-  // Use a single audio instance
-  let audio = new Audio();
+  let currentSong = null;
 
   function renderHome() {
-    // Stop any currently playing audio
-    audio.pause();
-    audio.currentTime = 0;
-
     document.getElementById("app").innerHTML = `
-      <img class="hero" src="https://images.unsplash.com/photo-1518441902117-f1a9c0e2f5e6" alt="Pink Headphones"/>
+      <img class="hero" src="https://images.unsplash.com/photo-1600180758895-2c026b1b3f1b?crop=entropy&cs=tinysrgb&fit=max&h=400&w=400" alt="Pink Headphones"/>
       <h1>mochi stereo</h1>
       <button onclick="playRandom()">Play Random Song</button>
     `;
   }
 
   function playRandom() {
-    // Stop previous audio
-    audio.pause();
-    audio.currentTime = 0;
-
-    const randomSong = songs[Math.floor(Math.random() * songs.length)];
-    audio.src = randomSong;
-    audio.play();
+    // Pick a random song
+    currentSong = songs[Math.floor(Math.random() * songs.length)];
 
     document.getElementById("app").innerHTML = `
       <button class="back-btn" onclick="goBack()">← Back</button>
       <div class="player">
         <p>Now Playing</p>
-        <audio controls autoplay src="${randomSong}" id="player"></audio>
-        <br/>
-        <button onclick="playRandom()">Next Random Song</button>
+        <audio id="audioPlayer" src="${currentSong}" autoplay></audio>
+        <div class="control-btns">
+          <button onclick="playAudio()">Play</button>
+          <button onclick="pauseAudio()">Pause</button>
+          <button onclick="stopAudio()">Stop</button>
+          <button onclick="playRandom()">Next Random Song</button>
+        </div>
       </div>
     `;
+  }
 
-    // Sync the visible player with the single audio instance
-    const player = document.getElementById('player');
-    player.onplay = () => { if(audio.src !== player.src) audio.src = player.src; audio.play(); };
+  function playAudio() {
+    const player = document.getElementById("audioPlayer");
+    if (player) player.play();
+  }
+
+  function pauseAudio() {
+    const player = document.getElementById("audioPlayer");
+    if (player) player.pause();
+  }
+
+  function stopAudio() {
+    const player = document.getElementById("audioPlayer");
+    if (player) {
+      player.pause();
+      player.currentTime = 0;
+    }
   }
 
   function goBack() {
-    audio.pause();
-    audio.currentTime = 0;
+    stopAudio();
     renderHome();
   }
 
