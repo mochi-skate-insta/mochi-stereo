@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>mochi stereo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Pacifico&display=swap" rel="stylesheet">
 
 <style>
@@ -6,39 +14,36 @@ body {
   font-family: 'Inter', sans-serif;
   background: radial-gradient(circle at top, #1a1a1a, #0d0d0d);
   color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
 }
 
-/* Main container */
+/* Container */
 #app {
-  width: 100%;
   max-width: 420px;
+  margin: 60px auto;
   padding: 20px;
+  text-align: center;
 }
 
-/* Glass card */
+/* Card */
 .card {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
   border-radius: 20px;
   padding: 30px 20px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.4);
 }
 
-/* Hero image */
+/* Image */
 .hero {
-  width: 180px;
+  width: 160px;
   margin-bottom: 20px;
 }
 
 /* Title */
 h1 {
   font-family: 'Pacifico', cursive;
-  font-size: 42px;
-  margin: 10px 0 20px;
+  font-size: 40px;
+  margin-bottom: 20px;
 }
 
 /* Buttons */
@@ -67,7 +72,7 @@ button:hover {
 
 /* Song title */
 #songTitle {
-  font-size: 16px;
+  font-size: 15px;
   margin-bottom: 10px;
   opacity: 0.8;
 }
@@ -78,7 +83,7 @@ audio {
   margin: 10px 0;
 }
 
-/* Controls grid */
+/* Controls */
 .control-btns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -89,7 +94,89 @@ audio {
 .back-btn {
   background: none;
   color: #ff7ac6;
-  margin-bottom: 10px;
   font-size: 14px;
+  margin-bottom: 10px;
 }
 </style>
+</head>
+
+<body>
+
+<div id="app"></div>
+
+<script>
+const songs = [
+  "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/(mmm).mp3",
+  "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/Ape%20tsukareru.mp3",
+  "https://dcdkwhghtzvwffqtrqjb.supabase.co/storage/v1/object/public/sound/Spoon%20Drill%20(1).mp3"
+];
+
+let currentSong = null;
+let audio = null;
+
+function renderHome() {
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <img class="hero" src="https://mochi-stereo-sound.lovable.app/assets/hero-headphones-C_7uh22w.png" alt="headphones"/>
+      <h1>mochi stereo</h1>
+      <button onclick="playRandom()">Play Random Song</button>
+    </div>
+  `;
+}
+
+function playRandom() {
+  currentSong = songs[Math.floor(Math.random() * songs.length)];
+
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+
+      <div class="player">
+        <p id="songTitle">${decodeURIComponent(currentSong.split('/').pop())}</p>
+
+        <audio id="audioPlayer" src="${currentSong}" autoplay></audio>
+
+        <div class="control-btns">
+          <button onclick="playAudio()">Play</button>
+          <button onclick="pauseAudio()">Pause</button>
+          <button onclick="stopAudio()">Stop</button>
+          <button onclick="playRandom()">Next</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  audio = document.getElementById("audioPlayer");
+}
+
+function playAudio() {
+  if (audio) audio.play();
+}
+
+function pauseAudio() {
+  if (audio) audio.pause();
+}
+
+function stopAudio() {
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+}
+
+function goBack() {
+  stopAudio();
+  renderHome();
+}
+
+// Start app
+renderHome();
+</script>
+
+</body>
+</html>
